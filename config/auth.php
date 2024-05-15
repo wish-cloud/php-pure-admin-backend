@@ -13,7 +13,10 @@ return [
     |
     */
 
-    'expiration' => 60 * 24 * 7,
+    // 登录Token有效期
+    'token_expiration' => 60 * 12,
+    // 刷新Token有效期
+    'refresh_token_expiration' => 60 * 24 * 7,
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),

@@ -17,10 +17,12 @@ class CheckApiVersion
     {
         $version = (int) $request->header('X-Api-Version', 0);
         $platform = $request->header('X-Api-Platform', '');
+        $roles_secret = $request->header('X-Api-Roles-Secret', '');
 
         $data = [
             'version' => $version,
             'platform' => $platform,
+            'roles_secret' => $roles_secret,
         ];
         $request->attributes->add($data);
 

@@ -10,3 +10,21 @@ if (! function_exists('formatStatus')) {
         };
     }
 }
+
+if (! function_exists('jsonResponse')) {
+    function jsonResponse(int $code = 200, $message = '', $data = null, $errors = null)
+    {
+        $response = [
+            'status' => formatStatus($code),
+            'code' => $code,
+            'message' => $message,
+            'data' => $data,
+        ];
+
+        if ($errors) {
+            $response['errors'] = $errors;
+        }
+
+        return response()->json($response, substr($code, 0, 3));
+    }
+}

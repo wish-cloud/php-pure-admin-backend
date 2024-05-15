@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class RefreshApiToken
+class CheckApiToken
 {
     /**
      * Handle an incoming request.
@@ -15,9 +15,8 @@ class RefreshApiToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->user()->currentAccessToken()->expires_at->gt(now()) && auth()->user()->currentAccessToken()->expires_at->lt(now()->addMinutes(config('auth.expiration', 60 * 24 * 7) / 2))) {
-            auth()->user()->currentAccessToken()->expires_at = now()->addMinutes(config('auth.expiration', 60 * 24 * 7));
-            auth()->user()->currentAccessToken()->save();
+        if (auth()->user()->currentAccessToken()->name != 'token') {
+            return jsonResponse(401, '授权失败');
         }
 
         return $next($request);

@@ -12,25 +12,27 @@ abstract class Controller
         if ($field === 'platform') {
             return request()->attributes->get('platform');
         }
+        if ($field === 'roles_secret') {
+            return request()->attributes->get('roles_secret');
+        }
+        if ($field === 'token_expires') {
+            return request()->attributes->get('token_expires');
+        }
     }
 
     public function fail(string $message = '', $code = 500, $errors = null)
     {
-        return response()->json([
-            'status' => formatStatus($code),
-            'code' => $code,
-            'message' => $message,
-            'errors' => $errors,
-        ], substr($code, 0, 3));
+        return jsonResponse($code, $message, null, $errors);
     }
 
     public function success($data = [], string $message = '', $code = 200)
     {
-        return response()->json([
-            'status' => formatStatus($code),
-            'code' => $code,
-            'message' => $message,
-            'data' => $data,
-        ]);
+        //TODO 登录状态下对比更新用户信息,附加 userInfo 到 data
+        //附加 token_expires 到 data
+        if ($this->token_expires) {
+            $data['token_expires'] = $this->token_expires->toDateTimeString();
+        }
+
+        return jsonResponse($code, $message, $data);
     }
 }
