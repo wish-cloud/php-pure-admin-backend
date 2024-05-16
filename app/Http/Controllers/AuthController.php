@@ -17,7 +17,8 @@ class AuthController extends Controller
         if ($user && Hash::check($request->input('password'), $user->password)) {
             $expires = now()->addMinutes(config('auth.token_expiration', 60 * 12));
             $token = $user->createToken('token', ['*'], $expires);
-            $refresh_token = $user->createToken('refresh_token', ['*'], now()->addMinutes(config('auth.refresh_token_expiration', 60 * 24 * 7)));
+            $refresh_expires = now()->addMinutes(config('auth.refresh_token_expiration', 60 * 24 * 7));
+            $refresh_token = $user->createToken('refresh_token', ['*'], $refresh_expires);
 
             return $this->success([
                 'account' => $account,
@@ -25,6 +26,7 @@ class AuthController extends Controller
                 'accessToken' => $token->plainTextToken,
                 'refreshToken' => $refresh_token->plainTextToken,
                 'tokenExpires' => $expires->getPreciseTimestamp(3),
+                'refreshTokenExpires' => $refresh_expires->getPreciseTimestamp(3),
             ]);
         } else {
             return $this->fail('账号或密码错误', 402);
@@ -58,12 +60,14 @@ class AuthController extends Controller
             // 创建新Token
             $expires = now()->addMinutes(config('auth.token_expiration', 60 * 12));
             $token = $user->createToken('token', ['*'], $expires);
-            $refresh_token = $user->createToken('refresh_token', ['*'], now()->addMinutes(config('auth.refresh_token_expiration', 60 * 24 * 7)));
+            $refresh_expires = now()->addMinutes(config('auth.refresh_token_expiration', 60 * 24 * 7));
+            $refresh_token = $user->createToken('refresh_token', ['*'], $refresh_expires);
 
             return $this->success([
                 'accessToken' => $token->plainTextToken,
                 'refreshToken' => $refresh_token->plainTextToken,
                 'tokenExpires' => $expires->getPreciseTimestamp(3),
+                'refreshTokenExpires' => $refresh_expires->getPreciseTimestamp(3),
             ]);
         } else {
             return $this->fail('授权失败', 401);
