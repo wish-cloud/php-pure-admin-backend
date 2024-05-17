@@ -22,7 +22,7 @@ class MenuController extends Controller
                         ->orWhere('path', 'like', '%'.$keyword.'%');
                 });
             }
-        })->get();
+        })->orderBy('sort', 'asc')->get();
 
         return $this->success(new MenuResource($list));
     }

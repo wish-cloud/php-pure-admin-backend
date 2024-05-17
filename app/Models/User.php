@@ -82,6 +82,8 @@ class User extends Authenticatable
             $permissionIds = array_merge($permissionIds, $additionalPermissionIds);
         }
         $permissions = Permission::query()->whereIn('id', $permissionIds)->get()->toArray();
+        //排序
+        $permissions = collect($permissions)->sortBy('sort')->values()->all();
 
         // 获取所有权限，用于查找父级菜单
         $allPermissions = Permission::query()->where('guard_name', $guardName)->get()->toArray();
