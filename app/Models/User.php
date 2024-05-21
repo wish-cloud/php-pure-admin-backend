@@ -81,9 +81,7 @@ class User extends Authenticatable
             $additionalPermissionIds = $user->permissions()->pluck('id')->toArray();
             $permissionIds = array_merge($permissionIds, $additionalPermissionIds);
         }
-        $permissions = Permission::query()->whereIn('id', $permissionIds)->get()->toArray();
-        //排序
-        $permissions = collect($permissions)->sortBy('sort')->values()->all();
+        $permissions = Permission::query()->whereIn('id', $permissionIds)->get();
 
         // 获取所有权限，用于查找父级菜单
         $allPermissions = Permission::query()->where('guard_name', $guardName)->get()->toArray();
@@ -116,6 +114,11 @@ class User extends Authenticatable
             }
         }
 
+        // 排序
+        usort($tree, function ($a, $b) {
+            return $a['sort'] - $b['sort'];
+        });
+
         // 构建树的子节点
         foreach ($tree as &$t) {
             self::adaptToChildrenList($t, $childrenListMap);
@@ -128,6 +131,9 @@ class User extends Authenticatable
     {
         if (isset($childrenListMap[$o['id']])) {
             $o['children'] = $childrenListMap[$o['id']];
+            usort($o['children'], function ($a, $b) {
+                return $a['sort'] - $b['sort'];
+            });
             foreach ($o['children'] as &$child) {
                 self::adaptToChildrenList($child, $childrenListMap);
             }
@@ -141,12 +147,12 @@ class User extends Authenticatable
             'parent_id' => $item['parent_id'],
             'path' => $item['path'],
             'name' => $item['name'],
+            'sort' => $item['sort'],
         ];
         if (! empty($item['meta']['component'])) {
             $data['component'] = $item['meta']['component'];
         }
         $data['meta'] = $item['meta'];
-        $data['meta']['rank'] = $item['sort'];
         $data['meta']['title'] = $item['title'];
         $data['meta']['isShow'] = $item['is_show'];
 
